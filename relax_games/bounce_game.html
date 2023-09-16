@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Bouncing balls</title>
+    <style>html, body {
+      margin: 0;
+    }
+
+    html {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      height: inherit;
+    }
+
+    h1 {
+      font-size: 2rem;
+      letter-spacing: -1px;
+      position: absolute;
+      margin: 0;
+      top: -4px;
+      right: 15px;
+
+      color: white;
+      text-shadow: 0 0 4px white;
+    }
+    .Congratulation{
+      top: 50px;
+      left: 50px;
+      display: none;
+    }
+
+    p {
+      position: absolute;
+      margin: 0;
+      top: 35px;
+      right: 15px;
+      color: white;
+    }
+
+
+    .rule{
+        color: black;
+        position: absolute;
+        margin: 0 auto;
+        top: 54%;
+        width: 1000px;
+    }
+
+    .start-game{
+      position: absolute;
+      display: block;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      height: 60px;
+      width: 100px;
+    }
+
+
+
+    .btn-during-game{
+      position: absolute;
+      display: none;
+      top: 55px;
+      right: 15px;
+    }
+
+    .again{
+      position: absolute;
+      display: none;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      height: 60px;
+      width: 100px;
+    }
+
+    .mode-change{
+      padding: 10px 55px 10px 10px;
+      position: absolute;
+      display: block;
+      text-align: start;
+      top: 48%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+    }
+
+    .mode-change span {
+      color: cadetblue;
+    }
+
+    .btn{
+      position: absolute;
+      right: 40%;
+      bottom: 49%;
+    }
+
+    .btn button{
+      padding: 5px 10px;
+    }
+
+    </style>
+  </head>
+
+  <body>
+    <h1>弹球测试</h1>
+    <p>剩余彩球数：</p>
+    <h1 class="Congratulation">恭喜你玩到这里 发现只有有耐心或者有智慧的人才能发现的小彩蛋 其实这个菜单啥也没有 我连格式都懒得调了 乱七八糟瞎整一气 换行也不管了 祝你有美好的一天</h1>
+    <span class="inform">
+        <p class="rule">规则：使用adsw或上下左右键盘控制玩家，碰到彩球则彩球消灭，全部彩球被消灭则获胜。</p>
+        <p class="mode"></p>
+    </span>
+
+    <button class="start-game">开始游戏</button>
+    <div class="btn-during-game">
+      <button class="stop">暂停游戏</button>
+      <button class="new-game">重新开始</button>
+      <button class="change-choice">选择难度</button>
+    </div>
+
+
+    <button class="again">再来一次</button>
+    <div class="mode-change">
+      <span> 小球数量：</span>
+      <select name="ball-number" id="ball-number">
+        <option value="20">Defalt Number : 20</option>
+        <option value="5">5个</option>
+        <option value="10">10个</option>
+        <option value="15">15个</option>
+        <option value="25">25个</option>
+        <option value="35">35个</option>
+        <option value="50">好多个！50个！！</option>
+      </select>
+      <br>
+      <span> 小球移动速度：</span>
+      <select name="speed" id="speed">
+        <option value="3">慢</option>
+        <option value="7">中</option>
+        <option value="12">快</option>
+      </select>
+      <br>
+
+      <span> 操作块大小：</span>
+      <select name="size" id="size">
+        <option value="20">中</option>
+        <option value="10">小</option>
+        <option value="30">大</option>
+      </select>
+    </div>
+    <div class="btn">
+        <button class="confirm-change">确定</button>
+        <button class="cancel-change">取消</button>
+      </div>
+    <canvas></canvas>
+
+    <script>
+      //定义记录小球数量
+const para = document.querySelector('p');
+let count = 0;
+let ballList = []; //eater 对象在222行创建
+let newGame = true;
+
+// setup canvas
+
+const canvas = document.querySelector('canvas');
+const ctx = canvas.getContext('2d');
+
+const width = canvas.width = window.innerWidth ;
+const height = canvas.height = window.innerHeight;
+
+// function to generate random number
+
+function random(min, max) {
+  const num = Math.floor(Math.random() * (max - min + 1)) + min;
+  return num;
+}
+
+function randomNearZero(rangeUp, rangeLo) {
+  const num1 = random(rangeLo, rangeUp);
+  const num2 = random(-rangeUp, -rangeLo);
+  if(Math.random() > 0.5){
+    return num1;
+  } else {
+    return num2;
+  }
+}
+
+function randomColor() {
+  return 'rgb(' +
+         random(0, 255) + ', ' +
+         random(0, 255) + ', ' +
+         random(0, 255) + ')';
+}
+
+//构造一个Shape对象
+class Shape {
+    constructor(x, y, velX, velY, exists, start) {
+        this.x = x;
+        this.y = y;
+        this.velX = velX;
+        this.velY = velY;
+        this.exists = exists;
+        this.start = start;
+    }
+}
+
+//构造一个Ball对象，继承自Shape
+class Ball extends Shape{
+    constructor(x, y, velX, velY, exists, start, color, size) {
+        super( x, y, velX, velY, exists, start);
+        this.color = color;
+        this.size = size;
+    }
+
+    draw(){
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.arc(this.x, this.y, this.size, 0, 2*Math.PI);
+        ctx.fill();
+    }
+
+    update(){
+        //check if the ball is touching the edge of canvas
+        if((this.x + this.size) >= width){
+            this.velX = -(this.velX);
+        }
+        if ((this.x - this.size) <= 0) {
+            this.velX = -(this.velX);
+        }
+        if ((this.y + this.size) >= height) {
+            this.velY = -(this.velY);
+        }
+        if ((this.y - this.size) <= 0) {
+            this.velY = -(this.velY);
+        }
+        this.x += this.velX;
+        this.y += this.velY;
+    }
+
+    collisionDetect(){
+        for(let j = 0; j < ballList.length; j++) {
+            if(ballList[j].exists){
+              if(this !== ballList[j]){
+                const dx = this.x - ballList[j].x;
+                const dy = this.y - ballList[j].y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                if(distance < this.size + ballList[j].size){
+                  this.color = ballList[j].color = randomColor();
+                }
+              }
+            }
+          }
+    }
+
+}
+
+//构造一个EvilCircle对象，继承自Shape
+class EvilCircle extends Shape{
+    constructor(x,y, exists, start) {
+        super( x, y, 20, 20, exists, start);
+        this.color = 'white';
+        this.size = Number(document.getElementById('size').value);
+    }
+
+    draw(){
+        ctx.beginPath();
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 3;
+        ctx.arc(this.x, this.y, this.size, 0, 2*Math.PI);
+        ctx.stroke();
+    }
+
+    checkBounds(){
+      if((this.x + this.size) >= width){
+        this.x -= this.size;
+      }
+      if ((this.x - this.size) <= 0) {
+        this.x += this.size;
+      }
+      if ((this.y + this.size) >= height) {
+        this.y -= this.size;
+      }
+      if ((this.y - this.size) <= 0) {
+        this.y += this.size;
+      }
+    }
+
+    setControls(){
+        window.onkeydown = e => {
+          switch(e.key) {
+            case 'a':
+              this.x -= this.velX;
+              break;
+            case 'd':
+              this.x += this.velX;
+              break;
+            case 'w':
+              this.y -= this.velY;
+              break;
+            case 's':
+              this.y += this.velY;
+              break;
+            case 'ArrowLeft' :
+              this.x -= this.velX;
+              break;
+            case 'ArrowRight':
+              this.x += this.velX;
+              break;
+            case 'ArrowUp':
+              this.y -= this.velY;
+              break;
+            case 'ArrowDown':
+              this.y += this.velY;
+              break;
+          };
+        }
+    }
+
+    collisionDetect(){
+        for(let j = 0; j < ballList.length; j++) {
+            if(ballList[j].exists){
+              const dx = this.x - ballList[j].x;
+              const dy = this.y - ballList[j].y;
+              const distance = Math.sqrt(dx*dx + dy*dy);
+              if(distance < this.size + ballList[j].size){
+                ballList[j].exists = false;
+                count--;
+                para.textContent = '剩余彩球数： ' + count;
+                if(count === 0) {
+                  playAgain();
+                }
+              }
+            }
+          }
+    }
+}
+
+
+//创建数组 储存小球
+function createBalls(){
+  let speed = Number(document.getElementById('speed').value);
+  let ballNumber = Number(document.getElementById('ball-number').value);
+  while(ballList.length < ballNumber) {
+    let size = random(10,30);
+    let ball = new Ball(
+      random(0 + size, width - size),
+      random(0 + size, height - size),
+      randomNearZero(speed, speed/3),
+      randomNearZero(speed, speed/3),
+      true,
+      true,
+      randomColor(),
+      size
+    );
+    ballList.push(ball);
+    count++;
+    para.textContent = '剩余彩球数： ' + count;
+  }
+}
+
+ //创建evilcircle对象
+function creatEater(){
+  let eater = new EvilCircle(random(20, width-40), random(20, height - 20), true, true);
+  eater.setControls();
+  return eater;
+}
+
+  let returnID
+function start(eater){
+  //运动循环
+  function loop(){
+    if(eater.start){
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+    ctx.fillRect(0, 0, width, height);
+    eater.draw();
+    eater.checkBounds();
+    eater.collisionDetect();
+    for(let i = 0; i < ballList.length; i++){
+      if(ballList[i].exists === true) {
+        ballList[i].draw();
+        ballList[i].update();
+        ballList[i].collisionDetect();
+      }
+    }
+    returnID = requestAnimationFrame(loop);
+    }
+  }
+
+  loop();
+}
+
+
+let eater = creatEater();
+const game = document.querySelector('.start-game');
+const restart = document.querySelector('.new-game');
+const stop = document.querySelector('.stop');
+const again =  document.querySelector('.again');
+const changeDiff = document.querySelector('.change-choice');
+const btnInGame = document.querySelector('.btn-during-game'); //包括stop，again，changeDiff
+
+const difficulty = document.querySelector('.mode-change');
+const confirmChange = document.querySelector('.confirm-change');
+const cancelChange = document.querySelector('.cancel-change');
+const btn = document.querySelector('.btn');
+
+const congrat = document.querySelector('.Congratulation');
+
+
+function startNewGame() {
+  eater = creatEater();
+  createBalls();
+  start(eater);
+  game.style.display = 'none';
+  difficulty.style.display = 'none';
+  btn.style.display = 'none';
+
+  btnInGame.style.display = 'block';
+  newGame = false;
+  information();
+}
+
+function restartGame(){
+  ctx.clearRect(0,0,width,height);
+  ballList = [];
+  count = 0;
+  createBalls();
+  eater.start = false;
+  eater = creatEater();
+  start(eater);
+  difficulty.style.display = 'none';
+  btn.style.display = 'none';
+
+}
+
+function suspend(){
+  if(stop.textContent === '暂停游戏'){
+    cancelAnimationFrame(returnID);
+    stop.textContent = '继续游戏';
+  }
+  else if(stop.textContent === '继续游戏') {
+    start(eater);
+    stop.textContent = '暂停游戏';
+  }
+}
+
+function change(){
+
+  cancelAnimationFrame(returnID);
+  difficulty.style.display = 'block';
+  btn.style.display = 'block';
+  confirmChange.onclick = restartGame;
+  cancelChange.onclick = function(){
+    difficulty.style.display = 'none';
+    btn.style.display = 'none';
+
+    start(eater);
+  }
+}
+
+game.onclick = startNewGame;
+
+restart.onclick = restartGame;
+
+stop.onclick = suspend;
+
+changeDiff.onclick = change;
+
+
+  function playAgain() {
+    eater.start = false;
+    //cancelAnimationFrame(returnID);
+    //ctx.clearRect(0,0,width,height);
+    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+    ctx.fillRect(0, 0, width, height);
+    btnInGame.style.display = 'none';
+
+    again.style.display = 'block';
+    difficulty.style.display = 'block';
+    btn.style.display = 'none';
+    congrat.style.display = 'block';
+
+  }
+
+  again.onclick = function(){
+    ballList = [];
+    createBalls();
+    eater = creatEater();
+    start(eater);
+    again.style.display = 'none';
+    difficulty.style.display = 'none';
+    btn.style.display = 'none';
+
+    btnInGame.style.display = 'block';
+    congrat.style.display = 'none';
+
+  }
+
+function information(){
+    const rule = document.querySelector('.rule');
+    //const mode = document.querySelector('.mode');
+    rule.style.top = '11%';
+    rule.style.width = "15%";
+    rule.style.color = 'rgba(255,255,255,0.5)';
+}
+
+
+    </script>
+  </body>
+</html>

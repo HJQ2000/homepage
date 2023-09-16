@@ -3,51 +3,95 @@
 
 <head>
   <title>My Resume</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+  <link rel="stylesheet" href="style/index-css.css">
 </head>
 
 <body>
-  <header>
-    <h1>Jingqi Huang</h1>
-    <h2>Software Engineer</h2>
-    <img src="myphoto.jpg" alt="" style="height: 200px;">
+  <div>
+    <nav>
+      <ul class="nav-list">
+        <li class="no-list-style left"><a href="index.html">Home</a></li>
+        <li class="no-list-style"><a href="projects.html">Projects</a></li>
+        <li class="no-list-style"><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
 
-  </header>
+    <header>
+      <div class="container">
+        <div id="hello">
+          <h1>Hi, I'm <span style="font-weight: 400; color: #47597E">Jingqi Huang</span></h1>
+          <h2>I am a skilled and motivated professional<br> seeking opportunities in the field of software or data engineering.</h2>
+        </div>
+      </div>
+      
+    </header>
 
-  <nav>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="projects.html">Projects</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
-  </nav>
 
+  
   <section id="summary">
-    <h3>Summary</h3>
-    <p>
-      I am a skilled and motivated professional seeking opportunities in the field of software or data engineering.
-      I am dedicated to delivering high-quality software solutions that meet user needs and exceed expectations.
-      With a strong passion for technology and a drive for continuous learning, I am eager to contribute my expertise and make a meaningful impact in a dynamic work environment.
-    </p>
+    <div class="container">
+    <div class="card" style="width: 20rem; min-width:12.5rem; float:left; margin-right: 32px;">
+      <img class="card-img-top" src="photos/myphoto.jpg" alt="Card image cap">
+      <div class="card-body" style="text-align: center;">
+        <h5 class="card-title" >Jingqi Huang</h5>
+        <p class="card-text">jh4588@columbia.edu</p>
+        <div style="display:flex; justify-content:center; gap:1rem;">
+          <a href="https://www.linkedin.com/in/jingqi-huang/"><img src="photos/linkedin-icon.png" style="width: 1.5rem;"></a>
+          <a href="https://github.com/HJQ2000"><img src="photos/github-icon.png" style="width: 1.5rem;"></a>
+        </div>
+        
+      </div>
+    </div>
+
+    <div id="who-am-i" style="font-size: 18px;">
+      <h3>Who am I?</h3>
+      <p>Hello, I'm Jingqi, a current <span style="font-weight:500; color:#4F709C">Master's</span> student of data science at 
+        <span style="font-weight:500; color:#4F709C">Columbia University</span> in the City of New York.
+         I am on track to graduate in four months.</p>
+      <p>I am dedicated to delivering high-quality <span style="font-weight:500; color:#4F709C">software solutions</span>
+         that meet user needs and exceed expectations. With a strong passion for technology and a drive for continuous learning, 
+         I am eager to contribute my expertise and make a meaningful impact in a dynamic work environment.</p>
+      <p class="hide-when-small">I have gained knowledge and experience with 
+        <span style="font-weight:500; color:#4F709C"> data structures, algorithms, databases, networks, and operating systems</span>
+          from my undergradute study at 
+         <span style="font-weight:500; color:#4F709C"> University of California, Berkeley</span>.
+         I've had experience with fullstack development and fast pace development during internships.
+         I've improved data and statistical skills and machine learning practice at Columbia University.</p>
+    </div>
+  </div>
   </section>
 
-  <section id="education">
-    <h3>Education</h3>
-    <ul>
-      <li>
-        <p>Bachelor of Science in Computer Science - University of California, Berkeley(2018-2022)</p>
-      </li>
-      <li>
-        <p>Master of Science in Date Science - Columbia University(2022-2024)</p>
-      </li>
-    </ul>
+
+  <section class="light" id="education">
+    <div class="container vertical-container" >
+      <h3 class="content-title">Education Background</h3>
+      <div class="content-card">
+        <ul>
+          <li class="no-list-style">
+            <h5>University of California, Berkeley</h5>
+            <h6>B.A. in Computer Science (2018.8-2022.5)</h6>
+            <p>Courses taken: Data Structures; Efficient Algorithms; Database Systems; 
+              Operating Systems and System Programming; Artificial Intelligence; Machine Learning;</p>
+          </li>
+          <li class="no-list-style">
+            <h5>Columbia University</h5>
+            <h6>Master of Science in Date Science (2022.9-2023.12)</h6>
+            <p>Courses taken: Computer Networks; Algorithms; Computer Systems; Machine Learning </p>
+          </li>
+        </ul>
+      </div>
+    </div>
   </section>
 
   <section id="work-experience">
-    <h3>Work Experience</h3>
-    <ul>
-      <li>
-        <h4>Software Engineer Intern @ Amplitude</h4>
-        <p>Jun 2022 - Aug 2022</p>
+    <div  class="container vertical-container" > 
+      <h3 class="content-title">Internship Experience</h3>
+      <div>
+        <div class="content-card" id="Amplitude">
+          <h5>Software Engineer Intern @ Amplitude</h5>
+          <p>Jun 2022 - Aug 2022</p>
         <ul>
           <li>
             Accomplished redesign of web sign-up flow using React and Sass; achieved dynamic password and URL requirements
@@ -55,7 +99,8 @@
           </li>
           <li>
             Improved logic of redirection in sign-up process; added navigating backward and refreshing functions; increased
-            monthly conversion rate of starting to finishing signup by 200%
+            monthly conversion rate of starting to finishing signup by 200%. <br>
+            Here is a <a href="https://app.amplitude.com/signup" style="color: #1a51bf">link to the revision of sign-up process in production: Amplitude sign up</a>
           </li>
           <li>
             Designed and developed logic for sending reminder emails to eligible target users of recently released joining existing
@@ -65,52 +110,67 @@
             Collaborated closely with a cross-functional team with 2 designers and 2 product managers and provided technical 
             insights on a weekly basis; delivered revised sign-up and email reminders in production use
           </li>
+        </ul>
+        </div>
 
-        </ul>
-      </li>
-      <li>
-        <h4>Data Engineer Intern @ NIO</h4>
-        <p>May 2021 - Aug 2021</p>
-        <ul>
-          <li>
-            Analyzed and classified 4 categories of typical habits in brake pressing with speed, distance, pedal data and etc 
-            through Python; found links between different brake pressing habits and accident rate
-          </li>
-          <li>
-            Pulled and processed data using Spark and SQL from internal databases; produced 3 rounds of data visualization 
-            reports to support upgrade of autonomous parking algorithms
-          </li>
-        </ul>
-      </li>
-      <li>
-        <h4>Web Developer Assistant Intern @ YangDong Information Technology</h4>
-        <p>May 2020 - Aug 2020</p>
-        <ul>
-          <li>
-            Explored development of customized internal websites for over 500 staff; implemented launch, transmission and 
-            approval of task schedule with C# and KO
-          </li>
-          <li>Performed testing and bug fixing to ensure product quality.</li>
-          <li>Discussed and proposed transformation from KO to Vue for easier frontend backend separation</li>
-        </ul>
-      </li>
-    </ul>
+        <div class="content-card" id="NIO">
+          <h5>Data Engineer Intern @ NIO</h5>
+          <p>May 2021 - Aug 2021</p>
+          <ul>
+            <li>
+              Analyzed and classified 4 categories of typical habits in brake pressing with speed, distance, pedal data and etc 
+              through Python; found links between different brake pressing habits and accident rate
+            </li>
+            <li>
+              Pulled and processed data using Spark and SQL from internal databases; produced 3 rounds of data visualization 
+              reports to support upgrade of autonomous parking algorithms
+            </li>
+          </ul>
+        </div>
+
+        <div class="content-card" id="YD">
+          <h5>Web Developer Assistant Intern @ YangDong Information Technology</h5>
+          <p>May 2020 - Aug 2020</p>
+          <ul>
+            <li>
+              Explored development of customized internal websites for over 500 staff; implemented launch, transmission and 
+              approval of task schedule with C# and KO
+            </li>
+            <li>Performed testing and bug fixing to ensure product quality.</li>
+            <li>Discussed and proposed transformation from KO to Vue for easier frontend backend separation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <section id="skills">
-    <h3>Skills</h3>
-    <ul>
-      <li>A</li>
-      <li>B</li>
-    </ul>
+  <section class="light"  id="skills">
+    <div class="container vertical-container">
+      <h3>Interests & Skills</h3>
+      
+      <div class="content-card">
+        <p>I enjoy traveling and immersing myself in nature whenever I have the time or when I'm feeling down. </p>
+        <p>I enjoy playing badminton to recharge my energy. I am planning to learn tennis.</p>
+        <p>I like to take short video clips of life and edit them later.</p>
+        <div>
+          <img src="photos/p1.jpg" style="width:36%">
+          <img src="photos/p3.jpg" style="width:24%">
+          <img src="photos/p2.jpg" style="width:36%">
+        </div>
+        
+      </div>
 
+    </div>
   </section>
 
-  <footer>
+  <footer style="text-align: center;">
     <small>
-      Copyright © 2023 Jingqi Huang. All Rights Reserved.
+      Nice to meet you. Have a nice day.
     </small>
   </footer>
+  
+    
+  
 </body>
 
 </html>

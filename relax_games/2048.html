@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html>
+    <head>
+        <title>2048</title>
+        <style>
+             body{
+     margin: 0;
+     padding: 0;
+     height: 600px;
+     box-sizing: border-box;
+ }
+  
+ .header{
+     display: block;
+     margin: 0 auto;
+     width: 500px;
+     text-align: center;
+     font-family: Arial, Helvetica, sans-serif;
+ }
+
+ .header h1{
+     font-size: 60px;
+     font-weight: 700;
+     margin-bottom: 16px;
+ }
+
+ .header #newgamebutton{
+     display: block;
+     width: 100px;
+     margin: 0 auto;
+     padding: 10px 10px;
+     background-color: #8f7a66;
+     color: white;
+     text-decoration: none;
+     border-radius: 10px;
+ }
+
+ .header #newgamebutton:hover{
+     background-color: #9f8b77;
+ }
+
+ .header p{
+     font-size: 25px;
+     margin: 8px;
+ }
+
+ @media (max-height: 700px) {
+    .header h1{
+        font-size: 20px;
+      }  
+ }
+
+ @media (max-height: 650px) {
+    .header{
+        display: none;
+      }  
+ }
+
+
+ #grid-container{
+     box-sizing: border-box;
+
+     position: relative;
+     margin: 16px auto;
+     width: 500px;
+     height: 500px;
+     /*padding: 20px;*/
+     border-radius: 10px;
+
+     background-color: #bbada0;
+ }
+
+ .grid-cell{
+     position: absolute;
+     width: 100px;
+     height: 100px;
+     border-radius: 6px;
+     background-color: #ccc0b3;
+ }
+
+ .number-cell{
+     position: absolute;
+     border-radius: 6px;
+
+     text-align: center;
+     line-height: 100px;
+     font-size: 60px;
+     font-weight: 700;
+ }
+        </style>
+
+        <script type="text/javascript" src="http://lib.sinaapp.com/js/jquery/1.7.2/jquery.min.js"></script>
+        
+        
+    </head>
+    <body>
+        <!-- 绘制标题-->
+        <div class="header">
+            <h1>2048</h1>
+            <a href="javascript:newGame();" id="newgamebutton">New Game</a>
+            <p>score: <span id="score">0</span></p>
+        </div>
+
+        <!-- 绘制棋盘格-->
+        <div id="grid-container">
+            <div class="grid-cell" id="grid-cell-0-0"></div>
+            <div class="grid-cell" id="grid-cell-0-1"></div>
+            <div class="grid-cell" id="grid-cell-0-2"></div>
+            <div class="grid-cell" id="grid-cell-0-3"></div>
+
+            <div class="grid-cell" id="grid-cell-1-0"></div>
+            <div class="grid-cell" id="grid-cell-1-1"></div>
+            <div class="grid-cell" id="grid-cell-1-2"></div>
+            <div class="grid-cell" id="grid-cell-1-3"></div>
+
+            <div class="grid-cell" id="grid-cell-2-0"></div>
+            <div class="grid-cell" id="grid-cell-2-1"></div>
+            <div class="grid-cell" id="grid-cell-2-2"></div>
+            <div class="grid-cell" id="grid-cell-2-3"></div>
+
+            <div class="grid-cell" id="grid-cell-3-0"></div>
+            <div class="grid-cell" id="grid-cell-3-1"></div>
+            <div class="grid-cell" id="grid-cell-3-2"></div>
+            <div class="grid-cell" id="grid-cell-3-3"></div>
+
+        </div>
+
+        <script>
+            var board = new Array(); //待创建的二维数组 储存数值
+var score = 0;
+var hasConficted = new Array(); //待创建的二维数组 防止连续相加 e.g: 2 2 4 8
+var caidan = 0;
+//$(id) 是jquery中 document.getElementById 的便捷方式
+//$(document).ready(function(){.... }) 函数是用来取代页面中的window.onload （在页面加载完，自动执行定义js代码（function））
+//https://blog.csdn.net/weixin_39921821/article/details/86711753
+$(document).ready(function(){
+    newGame();
+})
+
+function newGame(){
+    //初始化棋盘格 
+    initGrid();
+
+    //在棋盘格中随机生成两个数字
+    generateNumber();
+    generateNumber(); 
+}
+
+//初始化棋盘
+function initGrid(){
+    for(let i = 0; i < 4; i++){
+        for(let j = 0; j < 4; j++){
+            //jquery 中改变css布局， $(id).css("", ); ==> docuement.getElementById.style = " ";
+            let gridCell =  $("#grid-cell-" + i + "-" + j);
+            gridCell.css("left", getPositionLeft(i,j) );
+            gridCell.css("top", getPositionTop(i,j) );
+        }
+    }
+
+    //board一维数组->二维数组
+    for(let i = 0; i < 4; i++){
+        board[i] = new Array();
+        hasConficted[i] = new Array(); 
+        for(let j = 0; j < 4; j++){
+            //初始化每个空格值为0
+            board[i][j] = 0; 
+            hasConficted[i][j] = false;
+        }
+    }
+
+    updateView();
+
+    score = 0;
+
+    updateScore(score);
+}
+
+//根据board更新页面显示
+function updateView(){
+    //清空上一轮的number cell位置显示
+    $(".number-cell").remove();
+
+    for(let i = 0; i < 4; i++){
+        for(let j = 0; j < 4; j++){
+            //在html grid-container 后添加新的div
+            $("#grid-container").append('<div class="number-cell" id="number-cell-' + i + '-' + j + '"></div>'); //拼出来<div class="number-cell" id="number-cell-1-2"></div> 的形式
+            let numberCell = $("#number-cell-" + i + "-" + j);
+            //根据数值设置位置和颜色
+            if(board[i][j] == 0){ //当数字为0是 设置不显示，仅显示棋盘格背景
+                numberCell.css("width", "0px");
+                numberCell.css("height", "0px");
+                numberCell.css("left", getPositionLeft(i,j)+50); //将位置设在方块中心
+                numberCell.css("top", getPositionTop(i,j)+50);
+            } else {
+                numberCell.css("width", "100px");
+                numberCell.css("height", "100px");
+                numberCell.css("left", getPositionLeft(i,j)); 
+                numberCell.css("top", getPositionTop(i,j));
+                numberCell.css("background-color", getBackgroundColor(board[i][j]));
+                numberCell.css("color", getTextColor(board[i][j]));
+                
+                //设置numberCell的文本内容为原数字不变
+                numberCell.text(board[i][j]);
+                numberCell.css("font-size", getFontSize(board[i][j]));
+            }
+            hasConficted[i][j] = false;
+        }
+    }
+    updateScore(score);
+    setTimeout("findcaidan(score)",50);
+}
+
+function generateNumber(){
+    //判断棋盘格是否还有空余空格
+    if(nospace(board)){
+        //棋盘格全满
+
+    } else {
+        //棋盘格仍有空余位置
+        //随机位置
+        let randX = parseInt(Math.floor(Math.random()*4));
+        let randY = parseInt(Math.floor(Math.random()*4));
+        //判断生成的随机位置是否可用
+        let count = 0; //防止当空格减少时长时间随机不到空的棋盘格
+        while(count < 50){
+            if(board[randX][randY] == 0){
+                break; //跳出while true循环
+            }
+            //如果位置不可用，则再次随机生成，在while true循环内再次判断
+            randX = parseInt(Math.floor(Math.random()*4));
+            randY = parseInt(Math.floor(Math.random()*4));
+            count++;
+        }
+        //如果count >= 50, 则手动寻找
+        if(count >= 50){
+            for(let i = 0; i < 4; i++){
+                for(let j = 0; j < 4; j++){
+                    if(board[i][j] == 0){
+                        randX = i;
+                        randY = j;
+                    }
+                }
+            }
+        }
+
+        //随机数字
+        let randNumber = Math.random() > 0.5 ? 4 : 2;
+
+        //在随机位置显示随机数字, 以动画效果出现
+        board[randX][randY] = randNumber;
+        showNumberAnimation(randX, randY, randNumber);
+    }
+    
+}
+
+//判断游戏是否结束
+function isGameOver(){
+    //如果所有棋盘格都有数字且不可移动
+    if(nospace(board) && !canMove(board)){
+        alert("Game Over!");
+    }
+
+}
+
+//根据玩家案件控制逻辑
+$(document).keydown(function(event){
+    switch(event.keyCode){
+        case 37: //left
+        case 65: //left with "a"
+            if(canMoveLeft(board)){
+                moveLeft();
+                setTimeout("generateNumber()", 210);
+                setTimeout("isGameOver()", 300);
+                
+                
+            }
+            break;
+        case 38: //up
+        case 87: //upwith "w"
+            if(canMoveUp(board)){
+                moveUp();
+                setTimeout("generateNumber()", 210);
+                setTimeout("isGameOver()", 300);
+            }
+            break;
+        case 39: //right
+        case 68: //right with "d"
+            if(canMoveRight(board)){
+                moveRight();
+                setTimeout("generateNumber()", 210);
+                setTimeout("isGameOver()", 300);
+            }
+            break;
+        case 40: //down
+        case 83: //down with "s"
+            if(canMoveDown(board)){
+                moveDown();
+                setTimeout("generateNumber()", 210);
+                setTimeout("isGameOver()", 300);
+            }
+            break;
+        default:
+            break;
+    }
+})
+
+//----------------------------移动控制----------------------
+
+//向左移动
+function moveLeft(){
+    for(let i = 0; i < 4; i++){
+        for(let j = 1; j < 4; j++){
+            if(board[i][j] != 0){ //可能需要移动
+                //查看左侧所有cell
+                for(let k = 0; k < j; k++){
+                    //空位 且中间无障碍
+                    if(board[i][k] == 0 && noHorizontalBlock(i, k, j, board)){
+                        showMoveAnimation(i, j , i, k);
+                        board[i][k] = board[i][j];
+                        board[i][j] = 0;
+                        continue;
+                    }
+                    //数字相同能合并，且中间无障碍 且位置没有发生过相加事件
+                    if(board[i][j] == board[i][k] &&  noHorizontalBlock(i, k, j, board) && !hasConficted[i][k]) {
+                        showMoveAnimation(i, j , i, k);
+                        board[i][k] += board[i][j];
+                        board[i][j] = 0;
+                        score += board[i][k];
+                        hasConficted[i][k] = true;
+                        continue;
+                    }
+                }
+
+            }
+        }
+    }
+    //setTimeout 等待移动动画完成之后再更新覆盖
+    setTimeout("updateView()", 200); 
+}
+
+//向右移动
+function moveRight(){
+    for(let i = 0; i < 4; i++){
+        for(let j = 2; j >= 0; j--){
+            if(board[i][j] != 0){ //可能需要移动
+                //查看右侧所有cell
+                for(let k = 3; k > j; k--){
+                    //空位 且中间无障碍
+                    if(board[i][k] == 0 && noHorizontalBlock(i, j, k, board)){
+                        showMoveAnimation(i, j , i, k);
+                        board[i][k] = board[i][j];
+                        board[i][j] = 0;
+                        continue;
+                    }
+                    //数字相同能合并，且中间无障碍
+                    if(board[i][j] == board[i][k] && noHorizontalBlock(i, j, k, board) && !hasConficted[i][k]) {
+                        showMoveAnimation(i, j , i, k);
+                        board[i][k] += board[i][j];
+                        board[i][j] = 0;
+                        score += board[i][k];
+                        hasConficted[i][k] = true;
+                        continue;
+                    }
+                }
+
+            }
+        }
+    }
+    //setTimeout 等待移动动画完成之后再更新覆盖
+    setTimeout("updateView()", 200); 
+}
+
+//向上移动
+function moveUp(){
+    for(let i = 1; i < 4; i++){
+        for(let j = 0; j < 4; j++){
+            if(board[i][j] != 0){
+                for(let k = 0; k < i; k++){
+                    if(board[k][j] == 0 && noVerticalBlock(j, k, i, board)){ // column, upperrow, lowerrow, board
+                        showMoveAnimation(i, j, k, j);
+                        board[k][j] = board[i][j];
+                        board[i][j] = 0;
+                        continue;
+                    }
+                    if(board[k][j] == board[i][j] && noVerticalBlock(j, k, i, board) && !hasConficted[k][j]) {
+                        showMoveAnimation(i, j, k, j);
+                        board[k][j] += board[i][j];
+                        board[i][j] = 0;
+                        score += board[k][j];
+                        hasConficted[k][j] = true;
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+    setTimeout("updateView()", 200); 
+}
+
+
+//向下移动
+function moveDown(){
+    for(let i = 3; i >= 0; i--){
+        for(let j = 0; j < 4; j++){
+            if(board[i][j] != 0){
+                for(let k = 3; k > i; k--){
+                    if(board[k][j] == 0 && noVerticalBlock(j, i, k, board)){
+                        showMoveAnimation(i, j, k, j);
+                        board[k][j] = board[i][j];
+                        board[i][j] = 0;
+                        continue;
+                    }
+                    if(board[k][j] == board[i][j] && noVerticalBlock(j, i, k, board) && !hasConficted[k][j]) {
+                        showMoveAnimation(i, j, k, j);
+                        board[k][j] += board[i][j];
+                        board[i][j] = 0;
+                        score += board[k][j];
+                        hasConficted[k][j] = true;
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+    setTimeout("updateView()", 200); 
+}
+
+
+//for test purpose
+function generate(i, j, number){
+    board[i][j] = number;
+    updateView();
+}
+
+function getPositionLeft(i,j){
+    return 20 + j*120;
+}
+
+function getPositionTop(i,j){
+    return 20 + i*120;
+}
+
+function getBackgroundColor(number){
+    switch(number){
+        case 2: return "#eee4da";
+        case 4: return "#ede0c8";
+        case 8: return "#f2b179";
+        case 16: return "#f59563";
+        case 32: return "#f67c5f";
+        case 64: return "#f65e3b";
+        case 128: return "#edcf72";
+        case 256: return "#edcc61";
+        case 512: return "#9c0";
+        case 1024: return "#33b5e5";
+        case 2048: return "#09c";
+        case 4096: return "#a6c";
+        case 8192: return "#93c";
+    }
+}
+
+function getTextColor(number){
+    if(number <= 4){
+        return "#776e65";
+    }
+    return "white";
+}
+
+function getFontSize(number){
+    if(number < 100){
+        return 60;
+    } else if(number < 1000){
+        return 40;
+    } else {
+        return 30;
+    }
+}
+
+//判断棋盘格是否有空格
+function nospace(board){
+    for(let i = 0; i < 4; i++){
+        for(let j = 0; j < 4; j++){
+            if(board[i][j] == 0){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+//判断是否可以向左移动
+function canMoveLeft(board){
+    for(let i = 0; i < 4; i++){
+        for(let j = 1; j < 4; j++){
+            if(board[i][j] != 0){
+                if(board[i][j-1] == 0 || board[i][j] == board[i][j-1]){
+                    return true;
+                }
+            } 
+        }
+    }
+    return false;
+}
+
+//判断是否可以向右移动
+function canMoveRight(board){
+    for(let i = 0; i < 4; i++){
+        for(let j = 0; j < 3; j++){
+            if(board[i][j] != 0){
+                if(board[i][j+1] == 0 || board[i][j] == board[i][j+1]){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+//判断是否可以向上移动
+function canMoveUp(board){
+    for(let i = 1; i < 4; i++){
+        for(let j = 0; j < 4; j++){
+            if(board[i][j] != 0) {
+                if(board[i-1][j] == 0 || board[i][j] == board[i-1][j]){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+//判断是否可以向下移动
+function canMoveDown(board){
+    for(let i = 0; i < 3; i++){
+        for(let j = 0; j < 4; j++){
+            if(board[i][j] != 0){
+                if(board[i+1][j] == 0 || board[i][j] == board[i+1][j]){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+//判断水平路线上 start, end之间是否有障碍物
+function noHorizontalBlock(row, start, end, board){
+    for(let i = start+1; i < end; i++){
+        if(board[row][i] != 0){
+            return false;
+        }
+    }
+    return true;
+}
+
+//判断垂直路线上 start, end之间是否有障碍物
+function noVerticalBlock(column, start, end, board){
+    for(let i = start+1; i < end; i++){
+        if(board[i][column] != 0){
+            return false;
+        }
+    }
+    return true;
+}
+
+function canMove(board){
+    return (canMoveDown(board) || canMoveLeft(board) || canMoveRight(board) || canMoveUp(board));
+}
+
+//数字新建显示动画
+function showNumberAnimation(randX, randY, randNumber){
+    let numberCell = $("#number-cell-" + randX + "-" + randY);
+    numberCell.css("background-color", getBackgroundColor(randNumber));
+    numberCell.css("color", getTextColor(randNumber));
+    numberCell.text(randNumber);
+    numberCell.css("font-size", getFontSize(randNumber));
+    numberCell.animate({
+        width: "100px",
+        height: "100px",
+        left: getPositionLeft(randX, randY),
+        top: getPositionTop(randX, randY)
+    }, 50);
+}
+
+//移动动画
+function showMoveAnimation(fromx, fromy, tox, toy){
+    let numberCell = $("#number-cell-" + fromx + "-" + fromy);
+    numberCell.animate({
+        left: getPositionLeft(tox, toy),
+        top: getPositionTop(tox, toy)
+    }, 200);
+}
+
+
+//刷新分数
+function updateScore(score){
+    $("#score").text(score);
+}
+
+function findcaidan(score){
+    if(score>=3000 && caidan == 0){
+        alert("恭喜你达到3000分。祝你拥有快乐的一天");
+        caidan = 1;
+    } else if(score >= 5000 && caidan == 1){
+        alert("达到5000分了，你也是够闲的哦。我觉得这个512以后的颜色都奇奇怪怪的 但我也懒得改了 祝你玩的开心");
+        caidan = 2;
+    } else if(score >= 5500 && caidan == 2){
+        alert("后面没有彩蛋了。。。");
+        caidan = 3;
+    } else if(score >= 7500 && caidan == 3){
+        alert("不仅很闲 而且也挺厉害的。❤❤ ♥ ♥ ❤❤ 后面是真没了 拜拜");
+        caidan = 4;
+    }
+}
+        </script>
+    </body>
+</html>
