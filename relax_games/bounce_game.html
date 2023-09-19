@@ -96,6 +96,7 @@
 
     .btn{
       position: absolute;
+      display: none;
       right: 40%;
       bottom: 49%;
     }
@@ -108,48 +109,50 @@
   </head>
 
   <body>
-    <h1>弹球测试</h1>
-    <p>剩余彩球数：</p>
-    <h1 class="Congratulation">恭喜你玩到这里 发现只有有耐心或者有智慧的人才能发现的小彩蛋 其实这个菜单啥也没有 我连格式都懒得调了 乱七八糟瞎整一气 换行也不管了 祝你有美好的一天</h1>
+    <h1>Bounce and Hit</h1>
+    <p>Targets Left:</p>
+    <h1 class="Congratulation" style="text-align: center;">Wish you a HAPPY DAY!</h1>
     <span class="inform">
-        <p class="rule">规则：使用adsw或上下左右键盘控制玩家，碰到彩球则彩球消灭，全部彩球被消灭则获胜。</p>
+        <p class="rule">Rules: Use "ADWS" or direction buttons on keyboards to control; <br>
+          target balls will disappear once you hit it; win till all balls disappear.</p>
         <p class="mode"></p>
     </span>
 
-    <button class="start-game">开始游戏</button>
+    <button class="start-game">Start Game</button>
     <div class="btn-during-game">
-      <button class="stop">暂停游戏</button>
-      <button class="new-game">重新开始</button>
-      <button class="change-choice">选择难度</button>
+      <button class="stop">Pause</button>
+      <button class="new-game">Restart</button>
+      <button class="change-choice">Level of Difficulty</button>
     </div>
 
 
-    <button class="again">再来一次</button>
+    <button class="again">Try Again</button>
+
     <div class="mode-change">
-      <span> 小球数量：</span>
+      <span> Balls Count：</span>
       <select name="ball-number" id="ball-number">
         <option value="20">Defalt Number : 20</option>
-        <option value="5">5个</option>
-        <option value="10">10个</option>
-        <option value="15">15个</option>
-        <option value="25">25个</option>
-        <option value="35">35个</option>
-        <option value="50">好多个！50个！！</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="25">25</option>
+        <option value="35">35</option>
+        <option value="50">A LOT! 50!!</option>
       </select>
       <br>
-      <span> 小球移动速度：</span>
+      <span> Speed of Balls </span>
       <select name="speed" id="speed">
-        <option value="3">慢</option>
-        <option value="7">中</option>
-        <option value="12">快</option>
+        <option value="3">slow</option>
+        <option value="7">medium</option>
+        <option value="12">fast</option>
       </select>
       <br>
 
-      <span> 操作块大小：</span>
+      <span> Control Size：</span>
       <select name="size" id="size">
-        <option value="20">中</option>
-        <option value="10">小</option>
-        <option value="30">大</option>
+        <option value="20">medium</option>
+        <option value="10">small</option>
+        <option value="30">large</option>
       </select>
     </div>
     <div class="btn">
@@ -330,7 +333,7 @@ class EvilCircle extends Shape{
               if(distance < this.size + ballList[j].size){
                 ballList[j].exists = false;
                 count--;
-                para.textContent = '剩余彩球数： ' + count;
+                para.textContent = 'Targets Left: ' + count;
                 if(count === 0) {
                   playAgain();
                 }
@@ -359,7 +362,7 @@ function createBalls(){
     );
     ballList.push(ball);
     count++;
-    para.textContent = '剩余彩球数： ' + count;
+    para.textContent = 'Targets Left:' + count;
   }
 }
 
@@ -438,13 +441,13 @@ function restartGame(){
 }
 
 function suspend(){
-  if(stop.textContent === '暂停游戏'){
+  if(stop.textContent === 'Pause'){
     cancelAnimationFrame(returnID);
-    stop.textContent = '继续游戏';
+    stop.textContent = 'Continue';
   }
-  else if(stop.textContent === '继续游戏') {
+  else if(stop.textContent === 'Continue') {
     start(eater);
-    stop.textContent = '暂停游戏';
+    stop.textContent = 'Pause';
   }
 }
 
